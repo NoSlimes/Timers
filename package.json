@@ -1,0 +1,17 @@
+{
+  "name": "com.noslimes.timers",
+  "displayName": "Timers",
+  "version": "1.0.0",
+  "description": "A simple timer class for Unity",
+  "unity": "2018.3",
+  "documentation": "https://github.com/Noslimes/Timers",
+  "keywords": ["utilities"],
+  "author": {
+    "name": "NoSlimesJustCats",
+    "email": "info@noslimes.com",
+    "url": "http://noslimes.com/"
+  },
+  "dependencies": {
+    "com.unity": "2018.3"
+  }
+}
