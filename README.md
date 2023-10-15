@@ -1,6 +1,9 @@
 # Timers
 Simple timers class for Unity
 
+## Setup
+You just need to add the TimerManager component to a GameObject in your scene - thats it!
+
 ## Creating a Basic Timer
 You can create a timer using the TimerManager and specify a callback function to execute when the timer finishes:
 
