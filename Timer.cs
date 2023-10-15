@@ -5,20 +5,57 @@ namespace NSJC.Timers
 {
     public class Timer
     {
+        /// <summary>
+        /// Gets a value indicating whether the timer is currently running.
+        /// </summary>
         public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the timer has finished.
+        /// </summary>
         public bool IsFinished { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the timer is currently paused.
+        /// </summary>
         public bool IsPaused { get; private set; }
 
+        /// <summary>
+        /// Gets the initial duration set for the timer.
+        /// </summary>
         public float InitialDuration { get; private set; }
+
+        /// <summary>
+        /// Gets the remaining duration of the timer.
+        /// </summary>
         public float RemainingDuration { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the timer should be destroyed upon completion.
+        /// </summary>
         public bool DestroyOnCompletion { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the timer is in debug mode for logging.
+        /// </summary>
         public bool DebugMode { get; private set; }
 
+        /// <summary>
+        /// Event that is triggered when the timer is started.
+        /// </summary>
         public UnityEvent OnTimerStarted { get; private set; } = new UnityEvent();
+
+        /// <summary>
+        /// Event that is triggered when the timer is finished.
+        /// </summary>
         public UnityEvent OnTimerFinished { get; private set; } = new UnityEvent();
 
+        /// <summary>
+        /// Initializes a new instance of the Timer class with the specified duration, debug mode, and destroyOnCompletion setting.
+        /// </summary>
+        /// <param name="duration">The initial duration of the timer.</param>
+        /// <param name="debugMode">Whether to enable debug mode for logging.</param>
+        /// <param name="destroyOnCompletion">Whether to destroy the timer on completion.</param>
         public Timer(float duration, bool debugMode, bool destroyOnCompletion)
         {
             InitialDuration = duration;
@@ -27,6 +64,9 @@ namespace NSJC.Timers
             DestroyOnCompletion = destroyOnCompletion;
         }
 
+        /// <summary>
+        /// Starts the timer, making it run.
+        /// </summary>
         public void Play()
         {
             IsRunning = true;
@@ -34,10 +74,13 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                UnityEngine.Debug.Log($"Playing timer, remaining phaseDuration {RemainingDuration}");
+                Debug.Log($"Playing timer, remaining duration: {RemainingDuration}");
             }
         }
 
+        /// <summary>
+        /// Pauses the timer, stopping it temporarily.
+        /// </summary>
         public void Pause()
         {
             IsRunning = false;
@@ -45,22 +88,35 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                UnityEngine.Debug.Log($"Paused timer, remaining phaseDuration {RemainingDuration}");
+                Debug.Log($"Paused timer, remaining duration: {RemainingDuration}");
             }
         }
 
+        /// <summary>
+        /// Stops the timer and marks it as finished.
+        /// </summary>
         public void Stop()
         {
             IsFinished = true;
 
             if (DebugMode)
             {
-                UnityEngine.Debug.Log($"Stopped timer, remaining phaseDuration at stop {RemainingDuration}");
+                Debug.Log($"Stopped timer, remaining duration at stop: {RemainingDuration}");
             }
         }
 
-        public void SetDuration(float duration)
+        /// <summary>
+        /// Sets the duration of the timer and optionally pauses it.
+        /// </summary>
+        /// <param name="duration">The new duration to set for the timer.</param>
+        /// <param name="pause">Whether to pause the timer when setting the duration.</param>
+        public void SetDuration(float duration, bool pause = false)
         {
+            if (pause)
+            {
+                Pause();
+            }
+
             InitialDuration = duration;
             RemainingDuration = duration;
 
@@ -68,10 +124,14 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                UnityEngine.Debug.Log($"Set timer phaseDuration to {duration}");
+                Debug.Log($"Set timer duration to: {duration}");
             }
         }
 
+        /// <summary>
+        /// Resets the timer to its initial duration and optionally resumes it from a paused state.
+        /// </summary>
+        /// <param name="pause">Whether to resume the timer when resetting.</param>
         public void Reset(bool pause = true)
         {
             RemainingDuration = InitialDuration;
@@ -84,11 +144,14 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                UnityEngine.Debug.Log($"Reset timer with phaseDuration: {InitialDuration}, paused: {pause}");
+                Debug.Log($"Reset timer with duration: {InitialDuration}, paused: {pause}");
             }
         }
 
-        public void Update()
+        /// <summary>
+        /// Update method that should be called in the game loop to update the timer's state.
+        /// </summary>
+        internal void Update()
         {
             if (IsRunning && !IsPaused)
             {
@@ -103,11 +166,10 @@ namespace NSJC.Timers
 
                     if (DebugMode)
                     {
-                        UnityEngine.Debug.Log($"Timer Finished!");
+                        Debug.Log($"Timer Finished!");
                     }
                 }
             }
         }
-
     }
 }
