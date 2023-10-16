@@ -16,9 +16,19 @@ namespace NSJC.Timers
         public bool IsFinished { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether the timer has been canceled. 
+        /// </summary>
+        public bool IsCanceled { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether the timer is currently paused.
         /// </summary>
         public bool IsPaused { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the timer is set to repeating.
+        /// </summary>
+        public bool IsRepeating { get; private set; }
 
         /// <summary>
         /// Gets the initial duration set for the timer.
@@ -54,14 +64,16 @@ namespace NSJC.Timers
         /// Initializes a new instance of the Timer class with the specified duration, debug mode, and destroyOnCompletion setting.
         /// </summary>
         /// <param name="duration">The initial duration of the timer.</param>
-        /// <param name="debugMode">Whether to enable debug mode for logging.</param>
+        /// <param name="isRepeating">Whether to enable repeat on the timer.</param>
         /// <param name="destroyOnCompletion">Whether to destroy the timer on completion.</param>
-        public Timer(float duration, bool debugMode, bool destroyOnCompletion)
+        /// <param name="debugMode">Whether to enable debug mode for logging.</param>
+        public Timer(float duration, bool isRepeating, bool destroyOnCompletion, bool debugMode)
         {
             InitialDuration = duration;
             RemainingDuration = duration;
-            DebugMode = debugMode;
+            IsRepeating = isRepeating;
             DestroyOnCompletion = destroyOnCompletion;
+            DebugMode = debugMode;
         }
 
         /// <summary>
@@ -93,15 +105,15 @@ namespace NSJC.Timers
         }
 
         /// <summary>
-        /// Stops the timer and marks it as finished.
+        /// Cancels the timer and marks it as canceled.
         /// </summary>
-        public void Stop()
+        public void Cancel()
         {
-            IsFinished = true;
+            IsCanceled = true;
 
             if (DebugMode)
             {
-                Debug.Log($"Stopped timer, remaining duration at stop: {RemainingDuration}");
+                Debug.Log($"Canceled timer, remaining duration at stop: {RemainingDuration}");
             }
         }
 
@@ -109,10 +121,10 @@ namespace NSJC.Timers
         /// Sets the duration of the timer and optionally pauses it.
         /// </summary>
         /// <param name="duration">The new duration to set for the timer.</param>
-        /// <param name="pause">Whether to pause the timer when setting the duration.</param>
-        public void SetDuration(float duration, bool pause = false)
+        /// <param name="pauseOnDurationSet">Whether to pause the timer when setting the duration.</param>
+        public void SetDuration(float duration, bool pauseOnDurationSet = false)
         {
-            if (pause)
+            if (pauseOnDurationSet)
             {
                 Pause();
             }
@@ -121,6 +133,7 @@ namespace NSJC.Timers
             RemainingDuration = duration;
 
             IsFinished = false;
+            IsCanceled = false;
 
             if (DebugMode)
             {
@@ -131,11 +144,12 @@ namespace NSJC.Timers
         /// <summary>
         /// Resets the timer to its initial duration and optionally resumes it from a paused state.
         /// </summary>
-        /// <param name="pause">Whether to resume the timer when resetting.</param>
-        public void Reset(bool pause = true)
+        /// <param name="pauseOnReset">Whether to resume the timer when resetting.</param>
+        public void Reset(bool pauseOnReset = true)
         {
             RemainingDuration = InitialDuration;
             IsFinished = false;
+            IsCanceled = false;
 
             if (!IsPaused)
             {
@@ -144,7 +158,7 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                Debug.Log($"Reset timer with duration: {InitialDuration}, paused: {pause}");
+                Debug.Log($"Reset timer with duration: {InitialDuration}, paused: {pauseOnReset}");
             }
         }
 
@@ -168,6 +182,12 @@ namespace NSJC.Timers
                     {
                         Debug.Log($"Timer Finished!");
                     }
+
+                    if (IsRepeating)
+                    {
+                        Reset(pauseOnReset: false);
+                    }
+
                 }
             }
         }

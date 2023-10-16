@@ -43,13 +43,14 @@ namespace NSJC.Timers
         /// </summary>
         /// <param name="durationInSeconds">The initial duration of the timer in seconds.</param>
         /// <param name="onTimerFinished">An optional UnityAction to be executed when the timer finishes.</param>
-        /// <param name="startOnCreation">Indicates whether the timer should start immediately upon creation.</param>
-        /// <param name="destroyOnCompletion">Indicates whether the timer should be destroyed upon completion.</param>
-        /// <param name="debugMode">Enables or disables debug mode for the timer.</param>
+        /// <param name="isRepeating">An optional bool to set whether the timer should be repeating or not.</param>
+        /// <param name="startOnCreation">An optional bool to set whether the timer should start immediately upon creation.</param>
+        /// <param name="destroyOnCompletion">An optional bool to set whether the timer should be destroyed upon completion.</param>
+        /// <param name="debugMode">An optional bool that enables or disables debug mode for the timer.</param>
         /// <returns>The created Timer object.</returns>
-        public Timer CreateTimer(float durationInSeconds = 0, UnityAction onTimerFinished = null, bool startOnCreation = false, bool destroyOnCompletion = false, bool debugMode = false)
+        public Timer CreateTimer(float durationInSeconds = 0, UnityAction onTimerFinished = null, bool isRepeating = false, bool startOnCreation = false, bool destroyOnCompletion = false, bool debugMode = false)
         {
-            Timer timer = new Timer(durationInSeconds, debugMode, destroyOnCompletion);
+            Timer timer = new(durationInSeconds, isRepeating, debugMode, destroyOnCompletion);
             timers.Add(timer);
 
             if (onTimerFinished != null)
@@ -62,45 +63,45 @@ namespace NSJC.Timers
                 timer.Play();
             }
 
+            if (debugMode)
+            {
+                Debug.Log($"Created timer {timer}, with a duration of {durationInSeconds} seconds. isRepeating: {isRepeating}. startOnCreation{startOnCreation}. destroyOnCompletion: {destroyOnCompletion}. debugMode: {debugMode}");
+            }
+
             return timer;
         }
 
         /// <summary>
-        /// Starts a Timer that is currently paused.
+        /// Plays all Timers that is currently paused.
         /// </summary>
-        /// <param name="timer">The Timer to be played.</param>
-        public void PlayTimer(Timer timer)
+        public void PlayAllTimers()
         {
-            timer.Play();
+            foreach(Timer timer in timers)
+            {
+                timer.Play();
+            }
         }
 
         /// <summary>
-        /// Pauses a running Timer.
+        /// Pauses all running Timers.
         /// </summary>
-        /// <param name="timer">The Timer to be paused.</param>
-        public void PauseTimer(Timer timer)
+        public void PauseAllTimers()
         {
-            timer.Pause();
+            foreach (Timer timer in timers)
+            {
+                timer.Pause(); 
+            }
         }
 
         /// <summary>
-        /// Sets the duration of a Timer, optionally pausing it in the process.
+        /// Cancels all Timers.
         /// </summary>
-        /// <param name="timer">The Timer to be modified.</param>
-        /// <param name="duration">The new duration for the Timer.</param>
-        public void SetTimerDuration(Timer timer, float duration)
+        public void CancelAllTimers()
         {
-            timer.SetDuration(duration);
-        }
-
-        /// <summary>
-        /// Resets a Timer to its initial duration, optionally resuming it from a paused state.
-        /// </summary>
-        /// <param name="timer">The Timer to be reset.</param>
-        /// <param name="pause">Indicates whether the Timer should be paused after the reset.</param>
-        public void ResetTimer(Timer timer, bool pause = true)
-        {
-            timer.Reset(pause);
+            foreach (Timer timer in timers)
+            {
+                timer.Cancel();
+            }
         }
 
         /// <summary>
