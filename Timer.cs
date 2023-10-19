@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -53,12 +54,22 @@ namespace NSJC.Timers
         /// <summary>
         /// Event that is triggered when the timer is started.
         /// </summary>
-        public UnityEvent OnTimerStarted { get; private set; } = new UnityEvent();
+        public UnityEvent OnTimerStarted { get; private set; } = new();
+
+		/// <summary>
+		/// Event that is triggered when the timer is finished.
+		/// </summary>
+		public UnityEvent OnTimerFinished { get; private set; } = new();
 
         /// <summary>
-        /// Event that is triggered when the timer is finished.
+        /// Event that is triggered when the timer is canceled.
         /// </summary>
-        public UnityEvent OnTimerFinished { get; private set; } = new UnityEvent();
+        public UnityEvent<float> OnTimerCanceled { get; private set; } = new();
+
+        /// <summary>
+        /// Event that is triggered every timer update.
+        /// </summary>
+        public UnityEvent<float> OnTimerUpdate { get; private set; } = new();
 
         /// <summary>
         /// Initializes a new instance of the Timer class with the specified duration, debug mode, and destroyOnCompletion setting.
@@ -115,6 +126,8 @@ namespace NSJC.Timers
             {
                 Debug.Log($"Canceled timer, remaining duration at stop: {RemainingDuration}");
             }
+
+            OnTimerCanceled?.Invoke(RemainingDuration);
         }
 
         /// <summary>
@@ -189,6 +202,8 @@ namespace NSJC.Timers
                     }
 
                 }
+
+                OnTimerUpdate?.Invoke(RemainingDuration);
             }
         }
     }
