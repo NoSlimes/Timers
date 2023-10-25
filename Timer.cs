@@ -97,7 +97,7 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                Debug.Log($"Playing timer, remaining duration: {RemainingDuration}");
+                Debug.Log($"Playing timer, remaining newDuration: {RemainingDuration}");
             }
         }
 
@@ -111,7 +111,7 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                Debug.Log($"Paused timer, remaining duration: {RemainingDuration}");
+                Debug.Log($"Paused timer, remaining newDuration: {RemainingDuration}");
             }
         }
 
@@ -124,7 +124,7 @@ namespace NSJC.Timers
 
             if (DebugMode)
             {
-                Debug.Log($"Canceled timer, remaining duration at stop: {RemainingDuration}");
+                Debug.Log($"Canceled timer, remaining newDuration at stop: {RemainingDuration}");
             }
 
             OnTimerCanceled?.Invoke(RemainingDuration);
@@ -133,45 +133,49 @@ namespace NSJC.Timers
         /// <summary>
         /// Sets the duration of the timer and optionally pauses it.
         /// </summary>
-        /// <param name="duration">The new duration to set for the timer.</param>
-        /// <param name="pauseOnDurationSet">Whether to pause the timer when setting the duration.</param>
-        public void SetDuration(float duration, bool pauseOnDurationSet = false)
+        /// <param name="newDuration">The new duration to set for the timer.</param>
+        /// <param name="playOnDurationSet">Whether to play the timer when setting the duration.</param>
+        public void SetDuration(float newDuration, bool playOnDurationSet = false)
         {
-            if (pauseOnDurationSet)
+            if (playOnDurationSet)
             {
                 Pause();
             }
+            else
+            {
+                Play();
+            }
 
-            InitialDuration = duration;
-            RemainingDuration = duration;
+            InitialDuration = newDuration;
+            RemainingDuration = newDuration;
 
             IsFinished = false;
             IsCanceled = false;
 
             if (DebugMode)
             {
-                Debug.Log($"Set timer duration to: {duration}");
+                Debug.Log($"Set timer newDuration to: {newDuration}, playOnReset: {playOnDurationSet}");
             }
         }
 
         /// <summary>
         /// Resets the timer to its initial duration and optionally resumes it from a paused state.
         /// </summary>
-        /// <param name="pauseOnReset">Whether to resume the timer when resetting.</param>
-        public void Reset(bool pauseOnReset = true)
+        /// <param name="playOnReset">Whether to play the timer when resetting.</param>
+        public void Reset(bool playOnReset = false)
         {
             RemainingDuration = InitialDuration;
             IsFinished = false;
             IsCanceled = false;
 
-            if (!IsPaused)
+            if (!playOnReset)
             {
                 Play();
             }
 
             if (DebugMode)
             {
-                Debug.Log($"Reset timer with duration: {InitialDuration}, paused: {pauseOnReset}");
+                Debug.Log($"Reset timer with newDuration: {InitialDuration}, playOnReset: {playOnReset}");
             }
         }
 
@@ -180,7 +184,7 @@ namespace NSJC.Timers
         /// </summary>
         internal void Update()
         {
-            if (IsRunning && !IsPaused)
+            if (IsRunning && !IsPaused && !IsCanceled)
             {
                 RemainingDuration -= Time.deltaTime;
 
@@ -198,7 +202,7 @@ namespace NSJC.Timers
 
                     if (IsRepeating)
                     {
-                        Reset(pauseOnReset: false);
+                        Reset(playOnReset: true);
                     }
 
                 }

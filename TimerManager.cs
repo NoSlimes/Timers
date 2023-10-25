@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
 
 namespace NSJC.Timers
 {
@@ -8,7 +9,7 @@ namespace NSJC.Timers
     {
         public static TimerManager Instance { get; private set; }
 
-        private List<Timer> timers = new();
+        private HashSet<Timer> timers = new();
 
         private void Awake()
         {
@@ -24,19 +25,30 @@ namespace NSJC.Timers
 
         private void LateUpdate()
         {
-            for (int i = 0; i < timers.Count; i++)
-            {
-                timers[i].Update();
+            HashSet<Timer> timersToRemove = new();
 
-                if (timers[i].IsFinished)
+            // Create a copy of the timers collection
+            HashSet<Timer> copyOfTimers = new(timers);
+
+            foreach (Timer timer in copyOfTimers)
+            {
+                timer.Update();
+
+                if (timer.IsFinished)
                 {
-                    if (timers[i].DestroyOnCompletion)
+                    if (timer.DestroyOnCompletion)
                     {
-                        timers.RemoveAt(i);
+                        timersToRemove.Add(timer);
                     }
                 }
             }
+
+            foreach (Timer timerToRemove in timersToRemove)
+            {
+                DestroyTimer(timerToRemove);
+            }
         }
+
 
         /// <summary>
         /// Creates a new Timer and adds it to the list of managed timers.
@@ -50,8 +62,24 @@ namespace NSJC.Timers
         /// <returns>The created Timer object.</returns>
         public Timer CreateTimer(float durationInSeconds = 0, UnityAction onTimerFinished = null, bool isRepeating = false, bool startOnCreation = false, bool destroyOnCompletion = false, bool debugMode = false)
         {
-            Timer timer = new(durationInSeconds, isRepeating, debugMode, destroyOnCompletion);
-            timers.Add(timer);
+            float duration = durationInSeconds < 0 ? 0 : durationInSeconds;
+
+            Timer timer = new(duration, isRepeating, destroyOnCompletion, debugMode);
+            if (timers.Add(timer))
+            {
+                if (debugMode)
+                {
+                    Debug.Log($"Created timer {timer}, with a duration of {duration} seconds. isRepeating: {isRepeating}. startOnCreation{startOnCreation}. destroyOnCompletion: {destroyOnCompletion}. debugMode: {debugMode}");
+                }
+            }
+            else
+            {
+                if (debugMode)
+                {
+                    Debug.Log($"Couln't create Timer {timer} as Timer already exists!");
+                }
+                return null;
+            }
 
             if (onTimerFinished != null)
             {
@@ -61,11 +89,6 @@ namespace NSJC.Timers
             if (startOnCreation)
             {
                 timer.Play();
-            }
-
-            if (debugMode)
-            {
-                Debug.Log($"Created timer {timer}, with a duration of {durationInSeconds} seconds. isRepeating: {isRepeating}. startOnCreation{startOnCreation}. destroyOnCompletion: {destroyOnCompletion}. debugMode: {debugMode}");
             }
 
             return timer;
@@ -115,6 +138,8 @@ namespace NSJC.Timers
             {
                 Debug.Log($"Destroying Timer");
             }
+
+            timer.OnTimerCanceled.RemoveAllListeners();
 
             timers.Remove(timer);
 
