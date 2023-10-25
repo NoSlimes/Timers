@@ -97,12 +97,12 @@ class MyClass : MonoBehaviour
 
     private void ResetTimer()
     {
-        timer.Reset(pause: true);
+        timer.Reset(playOnReset: true);
     }
 
     private void SetTimerDuration()
     {
-        timer.SetDuration(23f, pause: true);
+        timer.SetDuration(23f, playOnDurationSet: false);
     }
 
     private void TimerFinished()
