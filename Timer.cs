@@ -139,11 +139,11 @@ namespace NSJC.Timers
         {
             if (playOnDurationSet)
             {
-                Pause();
+                Play();
             }
             else
             {
-                Play();
+                Pause();
             }
 
             InitialDuration = newDuration;
@@ -168,7 +168,7 @@ namespace NSJC.Timers
             IsFinished = false;
             IsCanceled = false;
 
-            if (!playOnReset)
+            if (playOnReset)
             {
                 Play();
             }
